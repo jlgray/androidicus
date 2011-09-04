@@ -15,7 +15,7 @@ Number.prototype.mod = function(n) {
 }
 
 function Flocking(){
-    var total_boids = 200;
+    var total_boids = 100;
     var boids = [];
     var thisFlocking = this;
     var canvasID = 'boid-space';
@@ -23,7 +23,7 @@ function Flocking(){
     var time_limit = 100000;
     var dt = 10;
 	var iter = 0;
-	this.gravity = [0.0,0.0002,0.0];
+	this.gravity = [0.0,0.0008,0.0];
     
     this.init = function(){
         var that=this;
@@ -53,7 +53,6 @@ function Flocking(){
             }); 
         }
 		
-        var i=0;
         function run(){
 			
             //get each boid's neighbors
@@ -61,14 +60,16 @@ function Flocking(){
                 boids[i].flock.boids = [];
                 for (var j=0; j<boids.length; j++){
                     if (i==j) continue;
-                    var distance = Math.sqrt(Math.pow(boids[i].pos[0] - boids[j].pos[0],2) + 
-                                             Math.pow(boids[i].pos[1] - boids[j].pos[1],2) +
-                                             Math.pow(boids[i].pos[2] - boids[j].pos[2],2))
-                    if (distance < boids[i].search_radius){
-                        boids[i].flock.boids[boids[i].flock.boids.length] = boids[j];
-                    }
-                }
-				//console.log(i++);
+					var other_boid = [boids[j].pos[0] - boids[i].pos[0], boids[j].pos[1] - boids[i].pos[1], boids[j].pos[2] - boids[i].pos[2]];
+					if (angle_between3(boids[i].dir, other_boid) > boids[i].vision_angle){
+						var distance = Math.sqrt(Math.pow(boids[i].pos[0] - boids[j].pos[0],2) + 
+												 Math.pow(boids[i].pos[1] - boids[j].pos[1],2) +
+												 Math.pow(boids[i].pos[2] - boids[j].pos[2],2))
+						if (distance < boids[i].search_radius){
+							boids[i].flock.boids[boids[i].flock.boids.length] = boids[j];
+						}
+					}
+				}
             }
 			iter++;
 			//console.log(thisFlocking.time_elapsed)
@@ -94,11 +95,11 @@ function Flocking(){
     var Boid = function(options){
         
         
-        
+        this.vision_angle = Math.PI/2;
         this.max_acceleration = 'max_acceleration' in options? options.max_acceleration: 0.003; //percentage of canvas that Boid can cover in one iteration
-        this.max_velocity = 'max_velocity' in options? options.max_velocity: 0.008; //percentage of canvas that Boid can cover in one iteration
+        this.max_velocity = 'max_velocity' in options? options.max_velocity: 0.004; //percentage of canvas that Boid can cover in one iteration
         this.max_rollspeed = 0.01*Math.PI;
-        this.max_pitchspeed = 0.01*Math.PI;
+        this.max_pitchspeed = 0.02*Math.PI;
         
         this.velocity = 'velocity' in options? options.velocity.slice(): [0.001*Math.random(),0.001*Math.random(),0.0]; //velocity as a percentage
         this.angular_velocity = [0.0,0.0,0.0];  //roll, pitch, and yaw
@@ -107,7 +108,7 @@ function Flocking(){
         this.pos = 'pos' in options? options.pos.slice(0): [0.5,0.5,0.0]; //position as a percentage
         
         this.behaviors = [this.cohesion]; //Keep this?
-        this.search_radius = 'search_radius' in options? options.search_radius: 0.5; //position as a percentage
+        this.search_radius = 'search_radius' in options? options.search_radius: 0.2; //position as a percentage
         this.flock = {
             boids: [],
             center: []
@@ -124,9 +125,11 @@ function Flocking(){
         this.normal = [0.0, 0.0, 1.0];
         this.dir = [1.0, 0.0, 0.0];   //direction boid moves, also roll axis 
         this.pitch_axis = [0.0, 1.0, 0.0];
+		
+		this.trail = []
         
     };
-
+	
 
     Boid.prototype.cohesion = function(parent){
                             
@@ -139,11 +142,14 @@ function Flocking(){
         return return_vector;
     }
 
+	
+	
     Boid.prototype.get_flock = function(){
         for (var i=0; i<boids.length; i++){
             boids[i].flock.boids = [];
             for (var j=0; j<boids.length; j++){
                 if (i==j) continue;
+				
                 var distance = Math.sqrt(Math.pow(boids[i].pos[0] - boids[j].pos[0],2) + 
                                          Math.pow(boids[i].pos[1] - boids[j].pos[1],2) +
                                          Math.pow(boids[i].pos[2] - boids[j].pos[2],2))
@@ -303,6 +309,9 @@ function Flocking(){
         this.pos[2] = (this.pos[2]+this.velocity[2]);
         //console.log(this.shape[0].slice(), this.shape[1].slice(), this.shape[2].slice(), this.normal.slice());        
     };
+	
+	Boid.prototype.add_trail = function(){
+	}
 };
 
 
