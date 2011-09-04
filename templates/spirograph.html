@@ -1,0 +1,59 @@
+{% if not xhr %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+
+<link rel="stylesheet" type="text/css" href="media/stylesheets/styles.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="media/stylesheets/spirostyles.css" media="screen" />
+<style>
+#ghost_div {width: 200px;}
+</style>
+
+<script src = "/media/scripts/jquery.js"></script>
+<script src = "/media/scripts/raphael.js"></script>
+<script src = "/media/scripts/spirograph.js"></script>
+
+</head>
+
+<body>
+{% endif %}
+<div id="spirograph_main">
+    <div id="spirograph-container">
+        <canvas id="spiral" class="spirograph" width="340px" height="340px"></canvas>
+        <canvas id="circles" class="spirograph" width="340px" height="340px"></canvas>
+    </div>
+    <div id="spiro_nav">
+        <ul>
+            <li class="spiro_slider"><div id="spiro_slider" class="spiro_slider"></div></li>
+
+            <li><p class="spiro_nav_header">Outer Ring</p>
+            <form> &nbsp r: <input id = "get_radius1" type="text" value="150"></input><div id="spiro_get_color1" class="color_chooser"></div></form></li>
+
+            <li><p class="spiro_nav_header">Inner Ring</p>
+            <form> &nbsp r: <input id = "get_radius2" type="text" value="60"></input><div id="spiro_get_color2" class="color_chooser"></div></form></li>
+
+            <li id="last_spiro_getter"><p class="spiro_nav_header">Pen</p>
+            <form> &nbsp h: <input id = "get_h" type="text" value="70"></input><div id="spiro_get_colorh" class="color_chooser"></div></form></li>
+
+            <li id = "spiro_generate_holder"><form><input id = "spiro_generate" type="button" value="Generate"></input>
+                                                    <input id="spiro_stop" type="button" value="Stop"></input></form></li>
+            <li id = "spiro_clear_holder"><form><input id = "spiro_clear" type="button" value="Clear"></input></form></li>
+        </ul>
+    </div>
+    <div id = "color_selector_base" class="color_selector" style="display: none;">
+        <div id="black_swatch"></div>
+        <div id="gray_swatch"></div>
+        <div id="red_swatch"></div>
+        <div id="orange_swatch"></div>
+        <div id="yellow_swatch"></div>
+        <div id="green_swatch"></div>
+        <div id="blue_swatch"></div>
+        <div id="purple_swatch"></div>
+    </div>
+</div>
+{% if not xhr %}
+</body>
+</html>
+{% endif %}

@@ -1,0 +1,120 @@
+@charset "utf-8";
+
+canvas.spirograph {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 340px;
+    height: 340px;
+    border-radius: 10px 0 10px 10px;
+    -moz-border-radius: 10px 0 10px 10px;
+    
+}
+
+#spirograph-container {
+    position: relative;
+    float: left;
+    width: 340px;
+    height: 340px;
+    border: 1px solid gray;
+    border-radius: 10px 0 10px 10px;
+    -moz-border-radius: 10px 0 10px 10px;
+    opacity: 1.0;
+}
+
+#spiral {
+    z-index: 0;
+    background: #fff;
+}
+		
+#circles {
+    z-index: 1;
+}
+
+
+#spiro_nav {
+    position: relative;
+    float: left;
+    padding: 0;
+    width: 101px;
+    margin:0;
+}
+
+#get_radius1 {width: 2em;}
+#get_radius2 {width: 2em;}
+#get_h {width: 2em;}
+
+#spiro_nav ul {
+    margin: 0 0 0 -40px;
+    list-style: none;
+}
+
+div.spiro_slider {
+    width: 100px;
+    height: 30px;
+    border-radius: 0 0 10px 0;
+    -moz-border-radius: 0 0 10px 0;
+    -khtml-border-radius: 0 0 10px 0;
+    background: url('../images/spiro_nav_bg.jpg');
+}
+
+#spiro_nav li {width: 90px;}
+
+#spiro_nav ul > li {background: url('../images/spiro_nav_bg.jpg');}
+
+#spiro_nav li.spiro_slider {width: 100px;
+							height: 30px;
+							border: none;
+							background: none;}
+
+#spiro_nav form div {float: right;  width: 12px; height: 12px; margin: 6% 15% 0 0;}
+
+#spiro_get_color1 {background: #f00;}
+#spiro_get_color2 {background: #0c0;}
+#spiro_get_colorh {background: #000;}
+
+.spiro_nav_header { padding: -2px;
+					margin: 0;
+					text-align: center;
+					font-size: 10pt;}
+
+li#spiro_generate_holder {width: 65px; 
+						border-radius: 0 0 5px 0;
+						-moz-border-radius: 0 0 5px 0;
+						-khtml-border-radius: 0 0 5px 0;}
+
+li#spiro_clear_holder {width: 45px; 
+					border-radius: 0 0 5px 0;
+					-moz-border-radius: 0 0 5px 0;
+					-khtml-border-radius: 0 0 5px 0;}
+
+li#last_spiro_getter {border-radius: 0 0 10px 0;
+					-moz-border-radius: 0 0 10px 0;
+					-khtml-border-radius: 0 0 10px 0;}
+
+#spiro_nav input[type="button"] {margin: 2px; font-family: sans-serif; font-size: 11px; padding: 1px;}
+
+div.color_selector {
+    position: absolute; 
+    z-index: 2; 
+    width: 70px; 
+    height: 28px; 
+    background: #fff; 
+    border: 1px solid gray;
+}
+div.color_selector > div {
+    float: left;
+    width: 12px;
+    height: 12px; 
+    border: 1px solid white;
+}
+
+#black_swatch {background: #000;}
+#gray_swatch {background: #999;}
+#red_swatch {background: #f00;}
+#orange_swatch {background: #f70;}
+#yellow_swatch {background: #ee0;}
+#green_swatch {background: #0c0;}
+#blue_swatch {background: #00f;}
+#purple_swatch {background: #f0f;}
+

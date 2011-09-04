@@ -1,0 +1,130 @@
+@charset "utf-8";
+
+body {
+    font-size: 16px;
+    background: #FF9 url("../images/bg.png") repeat-x;
+    overflow: visible;
+}
+
+a {
+    outline: none;
+}
+		  
+div#header {
+    float: left;
+    width: 100%;
+    z-index: -1;
+}
+
+#header img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+	
+div#nav {
+    float: left;
+    width: 6em;
+    margin-left: 5%;
+    margin-top: 2px;
+}
+	
+#nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0
+}
+			  
+#nav li {
+    margin: 0;
+    background-color: #fc3;
+    border-right: solid 1px #999;
+    cursor: pointer;
+}
+
+#nav ul ul li a {
+    font-size: 90%;
+    /*padding: 0.5em 0 0.5em 1em;*/
+}
+
+#nav ul ul li {
+    margin-left: 5px;
+    background: #f99;
+}
+			
+#nav li.top {
+    -moz-border-radius: 10px 0 0 0;
+    -khtml-border-radius: 10px 0 0 0;
+    border-radius: 10px 0 0 0;
+}
+			 
+#nav li.bottom {
+    -moz-border-radius: 0 0 0 10px;
+    -khtml-border-radius: 0 0 0 10px;
+    border-radius: 0 0 0 10px;
+}
+			 
+#nav a, #nav span {
+    display: block;
+    text-decoration: none;
+    font-size: 18px;
+    margin: 0;
+    padding: 0.5em 0 0.5em 1.4em;
+    color: #000;
+}
+
+#nav a:visited {
+    color: #000;
+}
+
+#nav li.current-tab{
+    background-color: #ff9;
+    opacity: 0.8;
+    border-right: none;
+}
+
+	
+#nav > ul > li:hover {
+    background-color: #ff9;
+    font-weight: 700;
+}
+
+#nav > ul > ul > li:hover {
+    background-color: #fcc;
+    font-weight: 700;
+}
+					
+#nav li.top:hover {-webkit-border-radius: 10px 0 0 0;}
+#nav li.bottom:hover {-webkit-border-radius: 0 0 0 10px;}
+	
+			 
+div#main {
+    position: relative;
+    float: left;
+    width: 75%;
+    min-height: 800px;
+    margin: -110px auto auto auto;
+    z-index:0;
+}
+
+div.main-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+#mainbg {
+    background: #FF9;
+    opacity: 0.8;
+    height: 100%;
+    border-radius: 20px 20px 0 0;
+    -moz-border-radius: 20px 20px 0 0;
+    -khtml-border-radius: 20px 20px 0 0;
+}
+
+#subpage > div {
+    padding: 40px;
+}
+
+p.date  {font-size: 10px;}
