@@ -11,7 +11,7 @@ A = {};
 A.flocking = new Flocking();
 
 Number.prototype.mod = function(n) {
-    return ((this%n)+n)%n;
+    return ((this%n)+n)%n
 }
 
 function Flocking(){
@@ -24,7 +24,8 @@ function Flocking(){
     var dt = 10;
 	var iter = 0;
 	this.gravity = [0.0,0.00001,0.0];
-    
+    this.drag_constant = 500;
+	
     this.init = function(){
         var that=this;
         this.canvas = document.getElementById(canvasID);
@@ -36,7 +37,7 @@ function Flocking(){
         
         this.canvas.setAttribute('width', canvasSize[0]);
         this.canvas.setAttribute('height', canvasSize[1]);
-        
+        console.log(this.canvas.width, this.canvas.height)
         this.boid_buffer = document.getElementById("boid-buffer");
         this.boid_ctx = this.boid_buffer.getContext("2d");
         
@@ -94,13 +95,14 @@ function Flocking(){
     
     var Boid = function(options){
         
+        
         this.vision_angle = Math.PI/2;
-        this.max_acceleration = 'max_acceleration' in options? options.max_acceleration: 0.001; //percentage of canvas that Boid can cover in one iteration
+        this.max_acceleration = 'max_acceleration' in options? options.max_acceleration: 0.01; //percentage of canvas that Boid can cover in one iteration
         this.max_velocity = 'max_velocity' in options? options.max_velocity: 0.002; //percentage of canvas that Boid can cover in one iteration
         this.max_rollspeed = 0.01*Math.PI;
-        this.max_pitchspeed = 0.02*Math.PI;
-		this.drag = 0.5;  //Range of 0.0 to 1.0, 0.0 being 0 drag, 1.0 being 100%  
-		
+        this.max_pitchspeed = 0.04*Math.PI;
+		this.drag = 0.2;
+        
         this.velocity = 'velocity' in options? options.velocity.slice(): [0.001*Math.random(),0.001*Math.random(),0.0]; //velocity as a percentage
         this.angular_velocity = [0.0,0.0,0.0];  //roll, pitch, and yaw
         
@@ -188,9 +190,7 @@ function Flocking(){
             //If theta is not close to PI/2 within a tolerance or 0.04
 			if (theta < 0.5*Math.PI - 0.04 || theta > 0.5*Math.PI + 0.04) {
 				var roll_speed = this.max_rollspeed;
-				//Not sure this is the right way to do this...
 				if ( theta > Math.PI/2 ){
-					//console.log("check")
 					roll_speed *= -1.0;
 				}
 				
@@ -217,20 +217,16 @@ function Flocking(){
 
 		var pitch_matrix = get_rotation_matrix(this.pitch_axis, pitch_speed);
 		this.shape = apply_matrix(pitch_matrix, rolled_shape);
-
 		var pitched_data = apply_matrix(pitch_matrix, [this.normal, this.dir]);
 		this.normal = scale_vector3(pitched_data[0], 1.0);
 		this.dir = scale_vector3(pitched_data[1], 1.0);
 	}
     
     Boid.prototype.render = function(context){
-        //console.log(this.angle.slice())
         
         var size = this.size+this.size*this.pos[2];
         size = (size > this.size) ? this.size : (size < 0) ? 0 : size;
-        //var size = 30;
 		var pos = [context.canvas.width*this.pos[0], context.canvas.height*this.pos[1]];
-        //console.log(this.pty_angles[0], this.normal[2])
         context.fillStyle = (this.normal[2]>0) ? "rgb(0,0,0)" : "rgb(150,150,150)"
         context.translate(pos[0],pos[1]);
         context.beginPath();
@@ -275,17 +271,21 @@ function Flocking(){
                     this.flock.center[2] - this.pos[2]];
 					
         this.orient(goal);
+        //console.log(goal.slice(), this.pos.slice())
+        //console.log(this.pty_angles.slice(), this.angular_velocity.slice());
         
         var acceleration = scale_vector3(this.dir, this.max_acceleration);
-		var deceleration = scale_vector3(this.velocity, 1.0 - Math.sqrt(dot_product(this.velocity, this.velocity)))
+		var vel_sq = dot_product3(this.velocity, this.velocity);
+		var dec_const =  thisFlocking.drag_constant*this.drag*vel_sq;
+		var deceleration = scale_vector3(this.velocity,dec_const);
         
 		
 		//if (Math.sqrt(dot_product3(this.velocity, this.velocity)) > this.max_velocity){
 			//this.velocity = scale_vector3(this.velocity, this.max_velocity)
-			this.velocity = scale_vector3()
-			this.velocity[0] += acceleration[0];
-			this.velocity[1] += acceleration[1];
-			this.velocity[2] += acceleration[2];
+			
+			this.velocity[0] += acceleration[0] - deceleration[0];
+			this.velocity[1] += acceleration[1] - deceleration[1];
+			this.velocity[2] += acceleration[2] - deceleration[2];
 		//}
 		this.velocity[0] += thisFlocking.gravity[0];
         this.velocity[1] += thisFlocking.gravity[1];

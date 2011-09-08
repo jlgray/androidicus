@@ -148,7 +148,9 @@ function transpose(mat){
 
 function scale_vector3(vector, magnitude){
     //returns a vector with the same direction, but with a specified magnitude
-    var scale_factor = magnitude/Math.sqrt(dot_product3(vector, vector));
+	var dp = dot_product3(vector, vector);
+	if (dp == 0) return [0,0,0]
+    var scale_factor = magnitude/Math.sqrt(dp);
     return [scale_factor*vector[0],
             scale_factor*vector[1],
             scale_factor*vector[2]];
