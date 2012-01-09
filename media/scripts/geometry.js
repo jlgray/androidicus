@@ -56,7 +56,7 @@ function dot_product3(vector_a, vector_b){
 
 function get_rotation_matrix(v, theta){
 
-	var d = Math.sqrt(v[2]*v[2] + v[1]*v[1])
+	var d = Math.sqrt(v[2]*v[2] + v[1]*v[1]);
 	var sint = Math.sin(theta);
 	var cost = Math.cos(theta);
 	

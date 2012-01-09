@@ -2,28 +2,26 @@
 var ux = [1,0,0];
 var uy = [0,1,0];
 var uz = [0,0,1];
-var shape = [[1,0,0], [0,1,0], [0,-1,0]]
+var shape = [[1,0,0], [0,1,0], [0,-1,0]];
 var vr = scale_vector3(shape[0], 1.0);
-
-
 
 A = {};
 A.flocking = new Flocking();
 
 Number.prototype.mod = function(n) {
-    return ((this%n)+n)%n
-}
+    return ((this%n)+n)%n;
+};
 
 function Flocking(){
     var total_boids = 100;
     var boids = [];
     var thisFlocking = this;
     var canvasID = 'boid-space';
-    var canvasSize = ['1250', '900']
+    var canvasSize = [1400, 1000];
     var time_limit = 100000;
     var dt = 10;
 	var iter = 0;
-	this.gravity = [0.0,0.00001,0.0];
+	this.gravity = [0.0,0.001,0.0];
     this.drag_constant = 500;
 	
     this.init = function(){
@@ -35,14 +33,10 @@ function Flocking(){
         else
             throw "No canvas with ID '" + canvasID + "'"; 
         
-        this.canvas.setAttribute('width', canvasSize[0]);
-        this.canvas.setAttribute('height', canvasSize[1]);
+        this.canvas.width = canvasSize[0];
+        this.canvas.height = canvasSize[1];
         console.log(this.canvas.width, this.canvas.height)
-        this.boid_buffer = document.getElementById("boid-buffer");
-        this.boid_ctx = this.boid_buffer.getContext("2d");
-        
-        this.boid_buffer.setAttribute('width', 20);
-        this.boid_buffer.setAttribute('height', 20);
+
         this.time_elapsed = 0;
         
         
@@ -62,7 +56,7 @@ function Flocking(){
                 for (var j=0; j<boids.length; j++){
                     if (i==j) continue;
 					var other_boid = [boids[j].pos[0] - boids[i].pos[0], boids[j].pos[1] - boids[i].pos[1], boids[j].pos[2] - boids[i].pos[2]];
-					if (angle_between3(boids[i].dir, other_boid) > boids[i].vision_angle){
+					if (angle_between3(boids[i].dir, other_boid) < boids[i].vision_angle){
 						var distance = Math.sqrt(Math.pow(boids[i].pos[0] - boids[j].pos[0],2) + 
 												 Math.pow(boids[i].pos[1] - boids[j].pos[1],2) +
 												 Math.pow(boids[i].pos[2] - boids[j].pos[2],2))
@@ -96,9 +90,9 @@ function Flocking(){
     var Boid = function(options){
         
         
-        this.vision_angle = Math.PI/2;
-        this.max_acceleration = 'max_acceleration' in options? options.max_acceleration: 0.01; //percentage of canvas that Boid can cover in one iteration
-        this.max_velocity = 'max_velocity' in options? options.max_velocity: 0.002; //percentage of canvas that Boid can cover in one iteration
+        this.vision_angle = Math.PI/2 + Math.PI/4;
+        this.max_acceleration = 'max_acceleration' in options? options.max_acceleration: 0.005; //percentage of canvas that Boid can cover in one iteration
+        this.max_velocity = 'max_velocity' in options? options.max_velocity: 0.0001; //percentage of canvas that Boid can cover in one iteration
         this.max_rollspeed = 0.01*Math.PI;
         this.max_pitchspeed = 0.04*Math.PI;
 		this.drag = 0.2;
@@ -109,8 +103,12 @@ function Flocking(){
         this.id = options.id;
         this.pos = 'pos' in options? options.pos.slice(0): [0.5,0.5,0.0]; //position as a percentage
         
-        this.behaviors = [this.cohesion]; //Keep this?
-        this.search_radius = 'search_radius' in options? options.search_radius: 0.2; //position as a percentage
+        this.behaviors = [this.cohesion, this.alignment, this.repulsion]; //Keep this?  Yes.
+        this.cohesion_weight = 1.0;
+        this.alignment_weight = 1.0;
+        this.repulsion_factor = 0.001; //This probably shouldn't be linear
+
+        this.search_radius = 'search_radius' in options? options.search_radius: 0.15; //position as a percentage
         this.flock = {
             boids: [],
             center: []
@@ -135,14 +133,35 @@ function Flocking(){
 
     Boid.prototype.cohesion = function(parent){
                             
-        var cohesion_factor = 0.001;
-        var return_vector = [
-            cohesion_factor * (parent.flock.center[0] - parent.pos[0]),
-            cohesion_factor * (parent.flock.center[1] - parent.pos[1]), 
-            cohesion_factor * (parent.flock.center[2] - parent.pos[2])
-        ]
-        return return_vector;
-    }
+        //calculate the center of the flock
+        var center =  (this.flock.boids.length == 0) ? this.pos.slice() : [0,0,0];
+        for (var i=0; i < this.flock.boids.length; i++){
+            center[0] += this.flock.boids[i].pos[0];
+            center[1] += this.flock.boids[i].pos[1];
+            center[2] += this.flock.boids[i].pos[2];
+        }
+
+        var boids_length = (this.flock.boids.length > 0) ? this.flock.boids.length : 1;
+        center[0] /= boids_length;
+        center[1] /= boids_length;
+        center[2] /= boids_length;
+
+        this.flock.center = center.slice(0);
+        //this.flock.center = [0.5,0.5+.002*iter,-iter*0.002]
+		if (this.flock.center[0]>1.0) this.flock.center[0] = 2.0 - this.flock.center[0];
+		if (this.flock.center[0]<0.0) this.flock.center[0] = -this.flock.center[0];
+
+		if (this.flock.center[1]>0.5) this.flock.center[1] = 0.9 - this.flock.center[1];
+		if (this.flock.center[1]<0.0) this.flock.center[1] = -this.flock.center[1];
+
+		if (this.flock.center[2]>1.0) this.flock.center[2] = 2.0 - this.flock.center[2];
+		if (this.flock.center[2]<0.0) this.flock.center[2] = -this.flock.center[2];
+
+       //Translate goal vector to the origin
+        return [this.flock.center[0] - this.pos[0],
+                this.flock.center[1] - this.pos[1],
+                this.flock.center[2] - this.pos[2]];
+    };
 
 	
 	
@@ -160,7 +179,7 @@ function Flocking(){
                 }
             }
         }
-    }
+    };
     
     Boid.prototype.orient = function(goal){
         /*
@@ -176,7 +195,7 @@ function Flocking(){
         //Roll
         //Get the normals of plane B_r
 		
-		var theta = 0.0
+		var theta = 0.0;
         var br_n = cross_product3(goal, this.dir); 
 		var pitch_speed = 0;
         //If the goal is a scalar of the direction, the normal vector for plane B
@@ -189,7 +208,7 @@ function Flocking(){
 			//Domain of theta: 0->3.14
             //If theta is not close to PI/2 within a tolerance or 0.04
 			if (theta < 0.5*Math.PI - 0.04 || theta > 0.5*Math.PI + 0.04) {
-				var roll_speed = this.max_rollspeed;
+				roll_speed = this.max_rollspeed;
 				if ( theta > Math.PI/2 ){
 					roll_speed *= -1.0;
 				}
@@ -204,11 +223,11 @@ function Flocking(){
 		//Pitch
 		var bp_n = cross_product3(goal, this.pitch_axis);
 		
-		var pitch_speed=0;
+		pitch_speed=0;
 		if (bp_n[0] != 0 || bp_n[1] != 0 || bp_n[2] != 0){
 			theta = angle_between3(bp_n, this.normal);
 			if (theta < Math.PI-0.04 && theta > 0.04) {
-				var pitch_speed = this.max_pitchspeed;
+				pitch_speed = this.max_pitchspeed;
 				if ( dot_product3(this.normal, goal) > 0 )
 					pitch_speed *= -1.0;
 			}
@@ -220,14 +239,14 @@ function Flocking(){
 		var pitched_data = apply_matrix(pitch_matrix, [this.normal, this.dir]);
 		this.normal = scale_vector3(pitched_data[0], 1.0);
 		this.dir = scale_vector3(pitched_data[1], 1.0);
-	}
+	};
     
     Boid.prototype.render = function(context){
         
         var size = this.size+this.size*this.pos[2];
         size = (size > this.size) ? this.size : (size < 0) ? 0 : size;
 		var pos = [context.canvas.width*this.pos[0], context.canvas.height*this.pos[1]];
-        context.fillStyle = (this.normal[2]>0) ? "rgb(0,0,0)" : "rgb(150,150,150)"
+        context.fillStyle = (this.normal[2]>0) ? "rgb(0,0,0)" : "rgb(150,150,150)";
         context.translate(pos[0],pos[1]);
         context.beginPath();
         context.lineTo(this.shape[0][0]*size, this.shape[0][1]*size);
@@ -236,40 +255,41 @@ function Flocking(){
         context.closePath();
         context.stroke();
         context.fill();
-        context.translate(-pos[0],-pos[1])
+        context.translate(-pos[0],-pos[1]);
     };
 
     Boid.prototype.update = function(){
         
-        //calculate the center of the flock
-        var center =  (this.flock.boids.length == 0) ? this.pos.slice() : [0,0,0] ;
-        for (var i=0; i < this.flock.boids.length; i++){
-            center[0] += this.flock.boids[i].pos[0];
-            center[1] += this.flock.boids[i].pos[1];
-            center[2] += this.flock.boids[i].pos[2];
-        }
+//        //calculate the center of the flock
+//        var center =  (this.flock.boids.length == 0) ? this.pos.slice() : [0,0,0];
+//        for (var i=0; i < this.flock.boids.length; i++){
+//            center[0] += this.flock.boids[i].pos[0];
+//            center[1] += this.flock.boids[i].pos[1];
+//            center[2] += this.flock.boids[i].pos[2];
+//        }
+//
+//        var boids_length = (this.flock.boids.length > 0) ? this.flock.boids.length : 1;
+//        center[0] /= boids_length;
+//        center[1] /= boids_length;
+//        center[2] /= boids_length;
+//
+//        this.flock.center = center.slice(0);
+//        //this.flock.center = [0.5,0.5+.002*iter,-iter*0.002]
+//		if (this.flock.center[0]>1.0) this.flock.center[0] = 2.0 - this.flock.center[0];
+//		if (this.flock.center[0]<0.0) this.flock.center[0] = -this.flock.center[0];
+//
+//		if (this.flock.center[1]>0.5) this.flock.center[1] = 0.9 - this.flock.center[1];
+//		if (this.flock.center[1]<0.0) this.flock.center[1] = -this.flock.center[1];
+//
+//		if (this.flock.center[2]>1.0) this.flock.center[2] = 2.0 - this.flock.center[2];
+//		if (this.flock.center[2]<0.0) this.flock.center[2] = -this.flock.center[2];
+//
+//       //Translate goal vector to the origin
+//        var goal = [this.flock.center[0] - this.pos[0],
+//                    this.flock.center[1] - this.pos[1],
+//                    this.flock.center[2] - this.pos[2]];
 
-        var boids_length = (this.flock.boids.length > 0) ? this.flock.boids.length : 1;
-        center[0] /= boids_length;
-        center[1] /= boids_length;
-        center[2] /= boids_length;
-        
-        this.flock.center = center.slice(0);
-        //this.flock.center = [0.5,0.5+.002*iter,-iter*0.002]
-		if (this.flock.center[0]>1.0) this.flock.center[0] = 2.0 - this.flock.center[0];
-		if (this.flock.center[0]<0.0) this.flock.center[0] = -this.flock.center[0];
-		
-		if (this.flock.center[1]>0.5) this.flock.center[1] = 0.9 - this.flock.center[1];
-		if (this.flock.center[1]<0.0) this.flock.center[1] = -this.flock.center[1];
-		
-		if (this.flock.center[2]>1.0) this.flock.center[2] = 2.0 - this.flock.center[2];
-		if (this.flock.center[2]<0.0) this.flock.center[2] = -this.flock.center[2];
-		
-       //Translate goal vector to the origin
-        var goal = [this.flock.center[0] - this.pos[0],
-                    this.flock.center[1] - this.pos[1],
-                    this.flock.center[2] - this.pos[2]];
-					
+        var goal = scale_vector3(this.cohesion(), this.cohesion_weight);
         this.orient(goal);
         //console.log(goal.slice(), this.pos.slice())
         //console.log(this.pty_angles.slice(), this.angular_velocity.slice());
