@@ -105,7 +105,7 @@ function Flocking(){
         
         this.behaviors = [this.cohesion, this.alignment, this.repulsion]; //Keep this?  Yes.
         this.cohesion_weight = 1.0;
-        this.alignment_weight = 1.0;
+        this.alignment_weight = .75;
         this.repulsion_factor = 0.001; //This probably shouldn't be linear
 
         this.search_radius = 'search_radius' in options? options.search_radius: 0.15; //position as a percentage
@@ -131,8 +131,26 @@ function Flocking(){
     };
 	
 
-    Boid.prototype.cohesion = function(parent){
-                            
+    Boid.prototype.alignment = function(){
+
+        var avg_alignment = [0.,0.,0.];
+        for (var i=0; i < this.flock.boids.length; i++){
+            avg_alignment[0] += this.flock.boids[i].dir[0];
+            avg_alignment[1] += this.flock.boids[i].dir[1];
+            avg_alignment[2] += this.flock.boids[i].dir[2];
+        }
+
+        var boids_length = (this.flock.boids.length > 0) ? this.flock.boids.length : 1; //Catch divide by zero errors
+        avg_alignment[0] /= boids_length;
+        avg_alignment[1] /= boids_length;
+        avg_alignment[2] /= boids_length;
+
+        return avg_alignment;
+    };
+
+
+    Boid.prototype.cohesion = function(){
+
         //calculate the center of the flock
         var center =  (this.flock.boids.length == 0) ? this.pos.slice() : [0,0,0];
         for (var i=0; i < this.flock.boids.length; i++){
@@ -173,7 +191,7 @@ function Flocking(){
 				
                 var distance = Math.sqrt(Math.pow(boids[i].pos[0] - boids[j].pos[0],2) + 
                                          Math.pow(boids[i].pos[1] - boids[j].pos[1],2) +
-                                         Math.pow(boids[i].pos[2] - boids[j].pos[2],2))
+                                         Math.pow(boids[i].pos[2] - boids[j].pos[2],2));
                 if (distance < boids[i].search_radius){
                     boids[i].flock.boids[boids[i].flock.boids.length] = boids[j];
                 }
@@ -289,7 +307,14 @@ function Flocking(){
 //                    this.flock.center[1] - this.pos[1],
 //                    this.flock.center[2] - this.pos[2]];
 
-        var goal = scale_vector3(this.cohesion(), this.cohesion_weight);
+        var cohesion_goal = scale_vector3(this.cohesion(), this.cohesion_weight);
+        var alignment_goal = scale_vector3(this.alignment(), this.alignment_weight);
+        var goal = [0.,0.,0.];
+        for (var i=0; i<3; i++){
+            goal[i] += cohesion_goal[i];
+            goal[i] += alignment_goal[i];
+        }
+        goal = scale_vector3(goal, 1.0);
         this.orient(goal);
         //console.log(goal.slice(), this.pos.slice())
         //console.log(this.pty_angles.slice(), this.angular_velocity.slice());
