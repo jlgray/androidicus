@@ -13,16 +13,16 @@ Number.prototype.mod = function(n) {
 };
 
 function Flocking(){
-    var total_boids = 100;
+    var total_boids = 50;
     var boids = [];
-    var thisFlocking = this;
+    var thisUniverse = this;
     var canvasID = 'boid-space';
     var canvasSize = [1400, 1000];
-    var time_limit = 100000;
+    var time_limit = 10000;
     var dt = 10;
 	var iter = 0;
-	this.gravity = [0.0,0.001,0.0];
-    this.drag_constant = 500;
+	this.gravity = [0.0,0.0001,0.0];
+    this.drag_constant = 50;
 	
     this.init = function(){
         var that=this;
@@ -59,7 +59,7 @@ function Flocking(){
 					if (angle_between3(boids[i].dir, other_boid) < boids[i].vision_angle){
 						var distance = Math.sqrt(Math.pow(boids[i].pos[0] - boids[j].pos[0],2) + 
 												 Math.pow(boids[i].pos[1] - boids[j].pos[1],2) +
-												 Math.pow(boids[i].pos[2] - boids[j].pos[2],2))
+												 Math.pow(boids[i].pos[2] - boids[j].pos[2],2));
 						if (distance < boids[i].search_radius){
 							boids[i].flock.boids[boids[i].flock.boids.length] = boids[j];
 						}
@@ -67,12 +67,10 @@ function Flocking(){
 				}
             }
 			iter++;
-			//console.log(thisFlocking.time_elapsed)
-			//thisFlocking.time_elapsed += 0;
+			//thisUniverse.time_elapsed += 0;
 
-            thisFlocking.canvas.width = thisFlocking.canvas.width;
+            thisUniverse.canvas.width = thisUniverse.canvas.width;
             for (var i=0; i<boids.length; i++){
-                //console.log(i);
                 boids[i].update();
                 boids[i].render(context);
             }
@@ -91,11 +89,11 @@ function Flocking(){
         
         
         this.vision_angle = Math.PI/2 + Math.PI/4;
-        this.max_acceleration = 'max_acceleration' in options? options.max_acceleration: 0.005; //percentage of canvas that Boid can cover in one iteration
+        this.max_acceleration = 'max_acceleration' in options? options.max_acceleration: 0.0005; //percentage of canvas that Boid can cover in one iteration
         this.max_velocity = 'max_velocity' in options? options.max_velocity: 0.0001; //percentage of canvas that Boid can cover in one iteration
         this.max_rollspeed = 0.01*Math.PI;
         this.max_pitchspeed = 0.04*Math.PI;
-		this.drag = 0.2;
+		this.drag_coeff = 0.2;  //Area * drag_coefficient
         
         this.velocity = 'velocity' in options? options.velocity.slice(): [0.001*Math.random(),0.001*Math.random(),0.0]; //velocity as a percentage
         this.angular_velocity = [0.0,0.0,0.0];  //roll, pitch, and yaw
@@ -316,32 +314,29 @@ function Flocking(){
         }
         goal = scale_vector3(goal, 1.0);
         this.orient(goal);
-        //console.log(goal.slice(), this.pos.slice())
-        //console.log(this.pty_angles.slice(), this.angular_velocity.slice());
-        
+
         var acceleration = scale_vector3(this.dir, this.max_acceleration);
-		var vel_sq = dot_product3(this.velocity, this.velocity);
-		var dec_const =  thisFlocking.drag_constant*this.drag*vel_sq;
-		var deceleration = scale_vector3(this.velocity,dec_const);
-        
-		
+
+
 		//if (Math.sqrt(dot_product3(this.velocity, this.velocity)) > this.max_velocity){
 			//this.velocity = scale_vector3(this.velocity, this.max_velocity)
 			
-			this.velocity[0] += acceleration[0] - deceleration[0];
-			this.velocity[1] += acceleration[1] - deceleration[1];
-			this.velocity[2] += acceleration[2] - deceleration[2];
+        this.velocity[0] += acceleration[0] + thisUniverse.gravity[0];
+        this.velocity[1] += acceleration[1] + thisUniverse.gravity[1];
+        this.velocity[2] += acceleration[2] + thisUniverse.gravity[2];
 		//}
-		this.velocity[0] += thisFlocking.gravity[0];
-        this.velocity[1] += thisFlocking.gravity[1];
-        this.velocity[2] += thisFlocking.gravity[2];
-        
-        //console.log(center, goal, this.pty_angles.slice(), this.velocity.slice()) 
-        
+        var vel_sq = dot_product3(this.velocity, this.velocity);
+        var dec_const =  thisUniverse.drag_constant*this.drag_coeff*vel_sq;
+        var drag = scale_vector3(this.velocity, dec_const);
+
+        //console.log(dec_const, this.max_acceleration, Math.sqrt(dot_product3(this.velocity, this.velocity)) );
+        this.velocity[0] -= drag[0];
+        this.velocity[1] -= drag[1];
+        this.velocity[2] -= drag[2];
+
         this.pos[0] = (this.pos[0]+this.velocity[0]); 
         this.pos[1] = (this.pos[1]+this.velocity[1]); 
         this.pos[2] = (this.pos[2]+this.velocity[2]);
-        //console.log(this.shape[0].slice(), this.shape[1].slice(), this.shape[2].slice(), this.normal.slice());        
     };
 	
 	Boid.prototype.add_trail = function(){
