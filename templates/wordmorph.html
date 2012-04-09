@@ -1,0 +1,38 @@
+<html>
+<head>
+    <style>
+        body {
+            background-color: #f90;
+        }
+
+        #wordmorph {
+            background-color: #fff;
+            height: 500px;
+            width: 600px;
+            margin: 50px auto 0;
+        }
+
+        .wordmorph-word {
+            font-size: 24px;
+            opacity: 0;
+        }
+
+        .wordmorph-word .changed-letter {
+            color: #C00;
+        }
+
+    </style>
+
+    
+</head>
+<body>
+    <input id="start-word" />
+    <input id="end-word" />
+    <button id="start-button">Start!</button>
+    <div id="wordmorph"></div>
+    <div id="wordmorph-word" class="wordmorph-word"></div>
+
+    <script type="text/javascript" src="../media/scripts/jquery.js"></script>
+    <script type="text/javascript" src="../media/scripts/wordmorph.js"></script>
+</body>
+</html>

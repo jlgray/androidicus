@@ -6,9 +6,10 @@ from django.conf import settings
 
 urlpatterns = patterns('',
     (r'toys/', include('toys.urls')),
-    (r'^$', 'home.views.index'),
-    (r'^wordmorph/$', 'wordmorph.views.wordmorph'),
+    (r'wordmorph/', include('wordmorph.urls')),
 
+
+    (r'^$', 'home.views.index'),
     (r'^home/$', 'home.views.home'),
 
     # Uncomment the admin/doc line below to enable admin documentation:

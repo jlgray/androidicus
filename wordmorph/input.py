@@ -1,23 +1,10 @@
 import pickle, os
+
 from django.conf import settings
 
-def one_char_different(word1, word2):
-    """
-        Returns whether or not two words of the same length are different by only one character
-    """
-    
-    strikes = 1 #three strikes policy with one strike to start with
-    for i in xrange(len(word1)):
-        if word1[i] != word2[i]:
-            strikes += 1
-        if strikes > 2:
-            return False
-    
-    if strikes > 1: 
-        return True
-    else: 
-        return False  #Same word
-    
+from wordmorph import models
+from wordmorph import utils
+
 
 def make_word_len_graph(wordlist):
     """
@@ -25,7 +12,7 @@ def make_word_len_graph(wordlist):
     """
     word_len_graph = {}
     for word in wordlist:
-        
+
         word_len = len(word)
 
         word_obj = {"word": word,
@@ -53,6 +40,9 @@ def make_word_graph(wordlist):
         #word = word.rstrip()
         word_len = len(word)
 
+#        if word_len != 4:
+#            continue
+
         if word_len not in wordlists:
             wordlists[word_len] = []
 
@@ -63,20 +53,43 @@ def make_word_graph(wordlist):
         pickle_graph(make_word_len_graph(wordlists[word_len]), word_len)
 
 
+def graph2db(wordgraph):
+    for word, neighbors_set in wordgraph.items():
+        new_word, created = models.WordNode.objects.get_or_create(text=word)
+        if created:
+            new_word.save()
+
+        for neighbor in neighbors_set:
+            neighbor_obj, created = models.WordNode.objects.get_or_create(text=neighbor)
+            if created:
+                neighbor_obj.save()
+            new_word.neighbors.add(neighbor_obj)
+            neighbor_obj.neighbors.add(new_word)
+
+
+def import_wordlist(filepath, separator=" "):
+    f = open(filepath)
+    wordlist = [w.rstrip().lower() for w in f.read().split(separator)]
+    return wordlist
+
+
 def pickle_graph(graph_dict, word_len):
     f = open(os.path.join(settings.PROJECT_PATH, ('wordmorph/graphs/%s.pkl' % word_len)), 'w')
     pickle.dump(graph_dict, f)
-        
 
-if __name__ == "__main__":
 
-    make_word_graph("./dict.txt")
-    
-    #unpickled_word_graph = pickle.load(file('./graphs/4.pkl'))
-    
-    #for word in unpickled_word_graph['clap']["neighbors"]:
-    #    print word
+def one_char_different(word1, word2):
+    """
+        Returns whether or not two strings of the same length are different by only one character
+    """
+    strikes = 1 #three strikes policy, with guilt presumed until proven otherwise
+    for i in xrange(len(word1)):
+        if word1[i] != word2[i]:
+            strikes += 1
+        if strikes > 2:
+            return False
 
-     
-
-    
+    if strikes > 1:
+        return True
+    else:
+        return False
