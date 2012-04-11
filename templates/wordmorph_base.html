@@ -6,6 +6,7 @@
         }
 
         #wordmorph {
+            position: relative;
             background-color: #fff;
             height: 500px;
             width: 600px;
@@ -13,12 +14,25 @@
         }
 
         .wordmorph-word {
+            position: absolute;
+            top: 0;
             font-size: 24px;
             opacity: 0;
         }
 
-        .wordmorph-word .changed-letter {
+        .wordmorph-word a {
+            text-decoration: none;
+            color: #000;
+        }
+
+        .wordmorph-word a:hover {
+            text-decoration: underline;
+            color: #36A;
+        }
+
+        .wordmorph-word em {
             color: #C00;
+            font-style: normal;
         }
 
     </style>

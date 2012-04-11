@@ -8,5 +8,5 @@ def gotohell(request):
 
 urlpatterns = patterns('wordmorph.views',
     (r'^$', 'wordmorph'),
-    (r'^get_path/$', 'get_path'),
+    (r'^path/$', 'path'),
 )

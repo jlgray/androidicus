@@ -1,6 +1,34 @@
-function render(path){
+function render(html){
+    //console.log(html);
+
     var $wordmorph = $("#wordmorph");
     $wordmorph.empty();
+
+    $wordmorph.html(html);
+
+    var $words = $wordmorph.find(".wordmorph-word");
+    var word_height = $words.eq(0).height();
+    var timeouts = [];
+
+    var dur = 900;
+    var start_time = (new Date()).getTime();
+
+    function animate_word($word, i){
+        $word.animate({
+            opacity: 1.0
+        }, {duration: dur, queue: false, complete: function(){
+                $words.slice(i+1).animate({
+                    top: (i+1)*word_height+"px"
+                },dur);
+        }});
+//        console.log(i+1, $word, $words.slice(i+1));
+    }
+
+    $wordmorph.find(".wordmorph-word").each(function(i){
+        timeouts[timeouts.length] = setTimeout(animate_word, i*dur, $(this), i);
+        i++;
+    });
+    /*
     var $word_base = $("#wordmorph-word");
     var i, path_len = path.length;
     var timeouts = [];
@@ -30,18 +58,18 @@ function render(path){
     for (i=1; i<path_len; i++){
         render_word(path[i], path[i-1])
     }
+    */
 }
 
 function get_path(start_word, end_word){
     $.ajax({
         type: "GET",
-        url: "/wordmorph/get_path",
+        url: "/wordmorph/path/",
         data: {start_word: start_word,
                end_word: end_word},
-        dataType: "json",
-        success: function(json){
-            if (json.status == "success")
-                render(json.path);
+        dataType: "html",
+        success: function(resp){
+            render(resp);
         }
     });
     //return ['art', 'ant', 'and', 'end'];
