@@ -1,5 +1,3 @@
-{% load wordmorph_tags %}
-
 {% for word in path_dict %}
     <div class="wordmorph-word">
         <a href="http://www.dictionary.com/browse/{{ word.0 }}">{{ word.1|safe }}</a>
