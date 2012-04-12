@@ -1,0 +1,24 @@
+== Overview ==
+
+The wordmorph app finds the minimum number of changes required to transform one word into another, changing only one letter at a time with the restriction that the intermediates are also english words.
+
+Formally, the hamming distance on the set of english words.
+
+Example:
+            <a href="http://www.dictionary.com/browse/free">free</a> ->
+            <a href="http://www.dictionary.com/browse/bree"><em>b</em>ree</a> ->
+            <a href="http://www.dictionary.com/browse/bren">bre<em>n</em></a> ->
+            <a href="http://www.dictionary.com/browse/been">b<em>e</em>en</a> ->
+            <a href="http://www.dictionary.com/browse/beer">bee<em>r</em></a> ->
+
+== Usage ==
+
+See this in action at <a href="http://www.androidicus.com/wordmorph/">androidicus.com/wordmorph</a>
+
+
+== TODO ==
+
+
+
+        
+    
