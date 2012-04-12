@@ -5,11 +5,11 @@ The wordmorph app finds the minimum number of changes required to transform one 
 Formally, the hamming distance on the set of english words.
 
 Example:
-            <a href="http://www.dictionary.com/browse/free">free</a> ->
-            <a href="http://www.dictionary.com/browse/bree"><em>b</em>ree</a> ->
-            <a href="http://www.dictionary.com/browse/bren">bre<em>n</em></a> ->
-            <a href="http://www.dictionary.com/browse/been">b<em>e</em>en</a> ->
-            <a href="http://www.dictionary.com/browse/beer">bee<em>r</em></a> ->
+            [http://www.dictionary.com/browse/free free</a> ->]
+            ["http://www.dictionary.com/browse/bree '''b'''ree</a> ->]
+            ["http://www.dictionary.com/browse/bren bre'''n'''</a> ->]
+            ["http://www.dictionary.com/browse/been b'''e'''en</a> ->]
+            ["http://www.dictionary.com/browse/beer bee'''r'''</a> ->]
 
 == Usage ==
 
@@ -17,7 +17,6 @@ See this in action at <a href="http://www.androidicus.com/wordmorph/">androidicu
 
 
 == TODO ==
-
 
 
         
