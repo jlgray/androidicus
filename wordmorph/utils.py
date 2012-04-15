@@ -12,6 +12,10 @@ def path_between(start_word, end_word):
     search_queue = [start_word]
 
     while not destination_found:
+        if not search_queue:
+            #Words are not connnected
+            return False
+
         for neighbor in word_graph[search_queue[0]]['neighbors']:
             if neighbor == end_word:
                 destination_found = True
@@ -24,6 +28,7 @@ def path_between(start_word, end_word):
                 search_queue.append(neighbor)
 
         search_queue.pop(0)
+
 
     dfs_path = []
     current_word = end_word
