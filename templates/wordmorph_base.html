@@ -40,10 +40,21 @@
     
 </head>
 <body>
-    <input id="start-word" />
-    <input id="end-word" />
-    <button id="start-button">Start!</button>
-    <div id="wordmorph"></div>
+    <form action={% url wordmorph.views.path %}>
+        {{ form.as_p }}
+        <input type="submit" value="Submit">
+    </form>
+    
+    {% if error_msg %}
+        <div class="wordmorph-error">
+           {{ error_msg }}
+        </div>
+    {% endif %}
+
+    <div id="wordmorph">
+        {% include "wordmorph_path.html" %}
+    </div>
+
     <div id="wordmorph-word" class="wordmorph-word"></div>
 
     <script type="text/javascript" src="../media/scripts/jquery.js"></script>
