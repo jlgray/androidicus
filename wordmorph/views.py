@@ -1,14 +1,11 @@
-import os
-import json
-from django.shortcuts import render_to_response
-from django.http import HttpResponse
-from django.utils.datastructures import MultiValueDictKeyError
+from autils.shortcuts import render_with_RequestContext
+
 import wordmorph.utils as u
 import wordmorph.forms as wforms
 
 def wordmorph(request):
     form = wforms.WordmorphForm()
-    return render_to_response('../templates/wordmorph_base.html', {"form": form})
+    return render_with_RequestContext(request, '../templates/wordmorph_base.html', {"form": form})
 
 def path(request):
     """
@@ -23,7 +20,7 @@ def path(request):
 
         if not path:
             error_msg = '"%s" and "%s" are not connected by substitution'% (start_word, end_word)
-            return render_to_response("wordmorph_base.html", {"error_msg": error_msg, "form": form})
+            return render_with_RequestContext(request, "wordmorph_base.html", {"error_msg": error_msg, "form": form})
 
         formatted_path = [path[0]]
 
@@ -34,8 +31,8 @@ def path(request):
                     formatted_path.append(this_word[:j] + "<em>" + this_word[j] + "</em>" + this_word[j+1:])
                     break
         zipped_path = zip(path, formatted_path)
-        return render_to_response("wordmorph_base.html", {"form": form, "path_dict": zipped_path})
+        return render_with_RequestContext(request, "wordmorph_base.html", {"form": form, "path_dict": zipped_path})
     else:
-        return render_to_response("wordmorph_base.html", {"form": form})
+        return render_with_RequestContext(request, "wordmorph_base.html", {"form": form})
 
 
