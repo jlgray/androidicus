@@ -92,6 +92,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     #'django.contrib.staticfiles',
+    'autils',
     'home',
     'toys',
     'wordmorph',
