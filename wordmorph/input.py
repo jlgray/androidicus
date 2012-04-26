@@ -1,14 +1,15 @@
 import pickle, os
+from collections import defaultdict
 
 from django.conf import settings
 
-from wordmorph import models
-from wordmorph import utils
+from wordmorph import models as wm
+from wordmorph import utils as u
 
 
 def make_word_len_graph(wordlist):
     """
-    Makes a graph of words of the same length with an edge if one_char_different passes for the two words
+    Makes a graph of words of the same length with an edge if one_different passes for the two words
     """
     word_len_graph = {}
     for word in wordlist:
@@ -33,24 +34,33 @@ def make_word_graph(wordlist):
     """
 
     """
-    wordlists = {}
+    graph = defaultdict(set)
+    i = 0
+    wlen = len(wordlist)
+    for word1 in wordlist:
+        if not i%1000:
+            print "mwg: %s (%s)" % (i, wlen)
+        i+=1
 
-    #Sort words in wordlist by length
-    for word in wordlist:
-        #word = word.rstrip()
-        word_len = len(word)
+        for word2 in wordlist:
+            if word1 not in graph[word2] and word2 not in graph[word1]:
+               if u.one_different(word1, word2):
+                    graph[word1].add(word2)
 
-#        if word_len != 4:
-#            continue
+    return graph
 
-        if word_len not in wordlists:
-            wordlists[word_len] = []
 
-        wordlists[word_len].append(word)
 
-    for word_len in wordlists:
-        print word_len
-        pickle_graph(make_word_len_graph(wordlists[word_len]), word_len)
+def write_graph_to_db(graph):
+    i=0
+    wlen =len(graph)
+    for word in graph:
+        if not i%1000:
+            print "wg2db: %s (%s)" % (i, wlen)
+        i+=1
+        for neighbor in graph[word]:
+            wm.EdgeList(word=word, neighbor=neighbor).save()
+
 
 
 def graph2db(wordgraph):
