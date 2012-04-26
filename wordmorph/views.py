@@ -9,10 +9,11 @@ def wordmorph(request):
 
 def path(request):
     """
+        Returns the shortest path between two words.
+        Expects a form request with a 'start_word' and an 'end_word'
     """
     form = wforms.WordmorphForm(request.GET)
     if form.is_valid():
-        print dir(form)
         start_word = form.cleaned_data["start_word"]
         end_word = form.cleaned_data["end_word"]
 
@@ -24,13 +25,15 @@ def path(request):
 
         formatted_path = [path[0]]
 
+        #Make HTML for path, adding <em> tags around the different word
         for i in range(1, len(path)):
             this_word, last_word = path[i], path[i-1]
             for j in range(len(this_word)):
                 if this_word[j] != last_word[j]:
                     formatted_path.append(this_word[:j] + "<em>" + this_word[j] + "</em>" + this_word[j+1:])
                     break
-        zipped_path = zip(path, formatted_path)
+
+        zipped_path = zip(path, formatted_path)   #(word, word_html)
         return render_with_RequestContext(request, "wordmorph_base.html", {"form": form, "path_dict": zipped_path})
     else:
         return render_with_RequestContext(request, "wordmorph_base.html", {"form": form})

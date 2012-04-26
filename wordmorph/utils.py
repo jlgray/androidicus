@@ -19,18 +19,22 @@ def path_between2(start_word, end_word):
 
         current_word = search_queue.pop(0)
         cursor.execute("""
-            SELECT ww.text FROM wordmorph_wordnode AS ww
-            JOIN wordmorph_wordnode_neighbors AS wwn
-                ON ww.id = wwn.to_wordnode_id
-                WHERE wwn.from_wordnode_id = (
-                    SELECT id from wordmorph_wordnode
-                    WHERE text = %s
-                );
-        """, [current_word])
-        for neighbor, in cursor.fetchall():
+            SELECT word, neighbor FROM wordmorph_edgelist
+            WHERE word = %s or neighbor = %s;
+        """, [current_word, current_word])
+        for word1, word2, in cursor.fetchall():
+            if word1 == current_word:
+                word = word1
+                neighbor = word2
+            else:
+                word = word2
+                neighbor = word1
+
             if neighbor in visited:
                 continue
+
             visited[neighbor] = current_word
+            
             if neighbor == end_word:
                 destination_found = True
                 break
@@ -92,28 +96,6 @@ def path_between1(start_word, end_word):
     return dfs_path
 
 
-test_word = "abcde"
-test_set = [
-    ("abcde", False),
-    ("abxde", True),
-    ("xbcde", True),
-    ("abcdx", True),
-    ("xbxdx", False),
-    ("axxde", False),
-    ("abde", True),
-    ("bcde", True),
-    ("abcd", True),
-    ("bcd", False),
-    ("abc", False),
-    ("cde", False),
-    ("abdx", False),
-    ("abcdef", True),
-    ("zabcde", True),
-    ("abcxde", True),
-    ("zabcdef", False),
-    ("abcdefg", False),
-    ("zabde", False),
-]
 
 def one_different(word1, word2):
     """
