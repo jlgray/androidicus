@@ -35,20 +35,34 @@ def make_word_graph(wordlist):
 
     """
     graph = defaultdict(set)
-    wlen = len(wordlist)
+    wordlists = defaultdict(list)
 
-    for i in range(len(wordlist)):
+    for word in wordlist:
+        wordlists[len(word)].append(word)
 
-        if not i%1000:
-            print "mwg: %s (%s)" % (i, wlen)
+    listlen = len(wordlist)
 
-        word1 = wordlist[i]
+    for wlen in sorted(wordlists.keys()):  #Sort so it's easier to keep track of
+        wlen = int(wlen)
 
-        for j in range(i+1, len(wordlist)):
-            word2 = wordlist[j]
+        print "mwg: %s" % wlen
 
-            if u.one_different(word1, word2):
-                graph[word1].add(word2)
+        #Check if there one and only one diff between words of this length and one more
+        #The output graph does not need redundancy in neighbors.  I.e. if word2 is in word1's neighbor set, word1 is implicitly in word2's neighbor set as well
+        for j in range(len(wordlists[wlen])):
+            word1 = wordlists[wlen][j]
+
+            for k in range(j+1, len(wordlists[wlen])):
+                word2 = wordlists[wlen][k]
+
+                if u.one_different(word1, word2):
+                    graph[word1].add(word2)
+
+            for k in range(len(wordlists[wlen+1])):
+                word2 = wordlists[wlen+1][k]
+
+                if u.one_different(word1, word2):
+                    graph[word1].add(word2)
 
     return graph
 
