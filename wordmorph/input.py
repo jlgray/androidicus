@@ -45,7 +45,9 @@ def make_word_graph(wordlist):
         word1 = wordlist[i]
 
         for j in range(i+1, len(wordlist)):
-           if u.one_different(word1, word2):
+            word2 = wordlist[j]
+
+            if u.one_different(word1, word2):
                 graph[word1].add(word2)
 
     return graph
