@@ -35,17 +35,18 @@ def make_word_graph(wordlist):
 
     """
     graph = defaultdict(set)
-    i = 0
     wlen = len(wordlist)
-    for word1 in wordlist:
+
+    for i in range(len(wordlist)):
+
         if not i%1000:
             print "mwg: %s (%s)" % (i, wlen)
-        i+=1
 
-        for word2 in wordlist:
-            if word1 not in graph[word2] and word2 not in graph[word1]:
-               if u.one_different(word1, word2):
-                    graph[word1].add(word2)
+        word1 = wordlist[i]
+
+        for j in range(i+1, len(wordlist)):
+           if u.one_different(word1, word2):
+                graph[word1].add(word2)
 
     return graph
 
